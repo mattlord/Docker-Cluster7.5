@@ -17,6 +17,6 @@ VOLUME /var/lib/mysql-cluster
 COPY mysql_cluster-entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
-EXPOSE 3306 33060
+EXPOSE 3306 33060 1186 
 CMD [""]
 
