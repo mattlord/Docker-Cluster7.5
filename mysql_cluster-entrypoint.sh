@@ -14,6 +14,13 @@ if [ "$NODE_TYPE" = 'sql' ]; then
         echo 'Setting up node as a new MySQL Cluster data node'
         echo
 
+        # we need to ensure that they have specified and endpoint for an existing management server
+        if [ ! -z "$MANAGEMENT_SERVER" ]; then
+                echo >&2 'error: Cluster management server is required'
+                echo >&2 '  You need to specify MANAGEMENT_SERVER=<hostname>[:<port>] in order to setup this new data node'
+                exit 1
+        fi
+
 	# Get config
 	DATADIR="$("$@" --verbose --help --log-bin-index=/tmp/tmp.index 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
 
@@ -121,6 +128,10 @@ if [ "$NODE_TYPE" = 'sql' ]; then
         #[MYSQLD]
         #NodeId=<node ID>
         #HostName=<IP/hostname>
+
+        # and we need to add the management server info to this mysqld instance's my.cnf file
+        #ndb_nodeid=<management node ID>
+        #ndb_connectstring=<management_server>:<port>
      
 	exec "$@"
 
@@ -163,7 +174,7 @@ elif [ "$NODE_TYPE" = 'data' ]; then
       		exit 1
 	fi
 
-        # we need to then modify the cluster config on that machine and add the basic defintion:
+        # we need to then modify the cluster config on the management server(s) and add the basic defintion:
 	#[NDBD]
 	#NodeId=<node ID>
 	#HostName=<IP/hostname>
