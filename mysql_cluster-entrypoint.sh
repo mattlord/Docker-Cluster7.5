@@ -119,7 +119,6 @@ if [ "$NODE_TYPE" = 'sql' ]; then
 
 	chown -R mysql:mysql "$DATADIR"
 
-
 	echo
 	echo "Registering new MySQL process with existing management server: $MANAGEMENT_SERVER"
 	echo
