@@ -12,7 +12,7 @@ For more information and related downloads for MySQL Cluster and other MySQL pro
 
 # MySQL Server Docker Images
 
-These are optimized MySQL Server Docker images, created and maintained by the MySQL team at Oracle. The available versions are:
+This is an experimental MySQL Cluster Docker image, created and maintained by Matt Lord. The available versions are:
 
     MySQL Cluster 7.5, the latest version (tag: 7.5 or latest)
 
@@ -22,13 +22,13 @@ These are optimized MySQL Server Docker images, created and maintained by the My
 
     docker run -d --name=ndb_mgmd --net=host -e NODE_TYPE=management -e BOOTSTRAP=1 mattalord/mysql-cluster:7.5 
 
-## Add a Data Node to the new Cluster 
+## Add a MySQL Cluster Data node to the Cluster 
 
 Start and add a MySQL Cluster Data Node as follows:
 
     docker run -d --name datanode1 -e NODE_TYPE=data -e MANAGEMENT_SERVER=ndb_mgmd --link ndb_mgmd mattalord/mysql-cluster:7.5
 
-## Add a MySQL Server Instance to the new Cluster 
+## Add a MySQL Server node to the Cluster 
 
 Start a MySQL instance as follows (but make sure you also read the sections *Secure Container Startup* and *Where to Store Data* below):
 
