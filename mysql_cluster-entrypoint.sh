@@ -7,6 +7,11 @@ if [ -z "$NODE_TYPE" ]; then
         exit 1
 fi
 
+# if command starts with an option, save them as CMD arguments
+if [ "${1:0:1}" = '-' ]; then
+        ARGS="$@"
+fi
+
 # If we're setting up a mysqld/SQL API node 
 if [ "$NODE_TYPE" = 'sql' ]; then
 
@@ -128,7 +133,7 @@ if [ "$NODE_TYPE" = 'sql' ]; then
         mkdir /var/lib/mysql-files
 	chown -R mysql:mysql /var/lib/mysql-files
 
-	CMD="mysqld --ndb_connectstring=$MANAGEMENT_SERVER:1186"
+	CMD="mysqld --ndb_connectstring=$MANAGEMENT_SERVER:1186 $ARGS"
 
 
 # If we're setting up a management node 
@@ -151,7 +156,7 @@ elif [ "$NODE_TYPE" = 'management' ]; then
 
 	mkdir /var/lib/ndb/management
 
-        CMD="ndb_mgmd --config-file=/etc/mysql/cluster-config.ini --config-dir=/etc/mysql --nodaemon=TRUE"
+        CMD="ndb_mgmd --config-file=/etc/mysql/cluster-config.ini --config-dir=/etc/mysql --nodaemon=TRUE $ARGS"
    
 
 # If we're setting up a data node 
@@ -171,7 +176,7 @@ elif [ "$NODE_TYPE" = 'data' ]; then
 	#HostName=<IP/hostname>
 
         # then we'll start an ndbmtd process in this container 
-        CMD="ndbmtd --ndb_connectstring=$MANAGEMENT_SERVER:1186"
+        CMD="ndbmtd --ndb_connectstring=$MANAGEMENT_SERVER:1186 $ARGS"
 
 else 
 	echo 'Invalid node type set. Valid node types are sql, management, and data.'
