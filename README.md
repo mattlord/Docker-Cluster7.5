@@ -10,9 +10,9 @@ MySQL Cluster integrates the standard MySQL server with an in-memory clustered s
 
 For more information and related downloads for MySQL Cluster and other MySQL products, please visit http://www.mysql.com.
 
-# MySQL Server Docker Images
+# MySQL Cluster Docker Image
 
-This is an experimental MySQL Cluster Docker image, created and maintained by Matt Lord. The available versions are:
+This is an experimental MySQL Cluster Docker image, created and maintained by Matt Lord. The available version is:
 
     MySQL Cluster 7.5, the latest version (tag: 7.5 or latest)
 
