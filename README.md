@@ -16,7 +16,7 @@ This is an experimental MySQL Cluster Docker image, created and maintained by Ma
 
     MySQL Cluster 7.5, the latest version (tag: 7.5 or latest)
 
-# How to Use the MySQL Images
+# How to Use the MySQL Cluster Image
 
 ## Bootstrap a new Cluster by creating a management node 
 
