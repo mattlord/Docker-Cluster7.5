@@ -130,6 +130,7 @@ if [ "$NODE_TYPE" = 'sql' ]; then
 
 	CMD="mysqld --ndb_connectstring=$MANAGEMENT_SERVER:1186"
 
+
 # If we're setting up a management node 
 elif [ "$NODE_TYPE" = 'management' ]; then
 
@@ -150,13 +151,12 @@ elif [ "$NODE_TYPE" = 'management' ]; then
 
 	mkdir /var/lib/ndb/management
 
-        CMD="/usr/sbin/ndb_mgmd --config-file=/etc/mysql/cluster-config.ini --config-dir=/etc/mysql --nodaemon=TRUE"
+        CMD="ndb_mgmd --config-file=/etc/mysql/cluster-config.ini --config-dir=/etc/mysql --nodaemon=TRUE"
    
 
 # If we're setting up a data node 
 elif [ "$NODE_TYPE" = 'data' ]; then
 	echo 'Setting up node as a new MySQL Cluster data node ...'
-
 
 	# we need to ensure that they have specified endpoint info for an existing ndb_mgmd node 
 	if [ -z "$MANAGEMENT_SERVER" ]; then
