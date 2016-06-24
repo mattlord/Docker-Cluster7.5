@@ -11,18 +11,28 @@ fi
 if [ "$NODE_TYPE" = 'sql' ]; then
 
         echo
-        echo 'Setting up node as a new MySQL Cluster data node'
+        echo 'Setting up node as a new MySQL API node'
         echo
 
+        CMD="mysqld"
+
         # we need to ensure that they have specified and endpoint for an existing management server
-        if [ ! -z "$MANAGEMENT_SERVER" ]; then
+        if [ -z "$MANAGEMENT_SERVER" ]; then
                 echo >&2 'error: Cluster management server is required'
-                echo >&2 '  You need to specify MANAGEMENT_SERVER=<hostname>[:<port>] in order to setup this new data node'
+                echo >&2 '  You need to specify MANAGEMENT_SERVER=<hostname> in order to setup this new data node'
+                exit 1
+        fi
+
+        # now we need to ensure that we can communicate with the management server 
+        # would like to use `ndb_mgm -t 0 -c "$MANAGEMENT_SERVER" -e "49 status"` but you can't disable the retry...
+        if ! $(nc -z "$MANAGEMENT_SERVER" 1186 >& /dev/null); then
+        	echo >&2 "error: Could not reach the specified Cluster management server at $MANAGEMENT_SERVER"
+                echo >&2 '  You need to specify a valid MANAGEMENT_SERVER=<hostname> option in order to setup this new sql node'
                 exit 1
         fi
 
 	# Get config
-	DATADIR="$("$@" --verbose --help --log-bin-index=/tmp/tmp.index 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
+	DATADIR="$("$CMD" --verbose --help --log-bin-index=/tmp/tmp.index 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
 
 	if [ ! -d "$DATADIR/mysql" ]; then
 		if [ -z "$MYSQL_ROOT_PASSWORD" -a -z "$MYSQL_ALLOW_EMPTY_PASSWORD" -a -z "$MYSQL_RANDOM_ROOT_PASSWORD" ]; then
@@ -38,10 +48,10 @@ if [ "$NODE_TYPE" = 'sql' ]; then
 		chown -R mysql:mysql "$DATADIR"
 
 		echo 'Initializing database'
-		"$@" --initialize-insecure=on
+		"$CMD" --initialize-insecure=on
 		echo 'Database initialized'
 
-		"$@" --skip-networking &
+		"$CMD" --skip-networking &
 		pid="$!"
 
 		mysql=( mysql --protocol=socket -uroot )
@@ -119,20 +129,10 @@ if [ "$NODE_TYPE" = 'sql' ]; then
 
 	chown -R mysql:mysql "$DATADIR"
 
-	echo
-	echo "Registering new MySQL process with existing management server: $MANAGEMENT_SERVER"
-	echo
-    
-        # here we need to "register" this instance with the management server by adding it to its config file
-        #[MYSQLD]
-        #NodeId=<node ID>
-        #HostName=<IP/hostname>
-
-        # and we need to add the management server info to this mysqld instance's my.cnf file
-        #ndb_nodeid=<management node ID>
-        #ndb_connectstring=<management_server>:<port>
+        # and we need to add the management server info to this mysqld process we're starting
+        #ndb_connectstring=<management_server>
      
-	exec "$@"
+	exec "$CMD" --ndb_connectstring="$MANAGEMENT_SERVER":1186
 
 # If we're setting up a management node 
 elif [ "$NODE_TYPE" = 'management' ]; then
@@ -146,6 +146,8 @@ elif [ "$NODE_TYPE" = 'management' ]; then
 		echo 'Bootstrapping new Cluster with a fresh management node'
 		echo
 
+		MANAGEMENT_SERVER=127.0.0.1
+
 	# otherwise we need to ensure that they have specified endpoint info for an existing ndb_mgmd node 
 	elif [ ! -z "$MANAGEMENT_SERVER" ]; then
 		echo
@@ -154,10 +156,12 @@ elif [ "$NODE_TYPE" = 'management' ]; then
 
         else
      		echo >&2 'error: Cluster management node is required'
-		echo >&2 '  You need to specify MANAGEMENT_SERVER=<hostname>[:<port>] in order to add a new managmeent node, or you must specify BOOTSTRAP in order to create a new Cluster'
+		echo >&2 '  You need to specify MANAGEMENT_SERVER=<hostname> in order to add a new managmeent node, or you must specify BOOTSTRAP in order to create a new Cluster'
       		exit 1
 
         fi
+
+        CMD="ndb_mgmd --config-file=/etc/mysql/cluster-config.ini"
    
 
 # If we're setting up a data node 
@@ -166,10 +170,12 @@ elif [ "$NODE_TYPE" = 'data' ]; then
 	echo 'Setting up node as a new MySQL Cluster data node'
 	echo
 
+        CMD="ndbmtd --ndb_connectstring=$MANAGEMENT_SERVER:1186"
+
 	# we need to ensure that they have specified endpoint info for an existing ndb_mgmd node 
-	if [ ! -z "$MANAGEMENT_SERVER" ]; then
+	if [ -z "$MANAGEMENT_SERVER" ]; then
      		echo >&2 'error: Cluster management server is required'
-		echo >&2 '  You need to specify MANAGEMENT_SERVER=<hostname>[:<port>] in order to setup this new data node'
+		echo >&2 '  You need to specify MANAGEMENT_SERVER=<hostname> in order to setup this new data node'
       		exit 1
 	fi
 
@@ -186,5 +192,5 @@ else
 	echo
 fi
 
-exit
 
+exec "$CMD"
