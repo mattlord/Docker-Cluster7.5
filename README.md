@@ -18,17 +18,17 @@ This is an experimental MySQL Cluster Docker image, created and maintained by Ma
 
 # How to Use the MySQL Cluster Image
 
-## Bootstrap a new Cluster by creating a management node 
+## Bootstrap a New Cluster by Creating a Management Node
 
     docker run -d --name=ndb_mgmd --net=host -e NODE_TYPE=management -e BOOTSTRAP=1 mattalord/mysql-cluster:7.5 
 
-## Add a MySQL Cluster Data node to the Cluster 
+## Add a MySQL Cluster Data Node to the Cluster 
 
 Start and add a MySQL Cluster Data Node as follows:
 
     docker run -d --name datanode1 -e NODE_TYPE=data -e MANAGEMENT_SERVER=ndb_mgmd --link ndb_mgmd mattalord/mysql-cluster:7.5
 
-## Add a MySQL Server node to the Cluster 
+## Add a MySQL Server Node to the Cluster 
 
 Start a MySQL instance as follows (but make sure you also read the sections *Secure Container Startup* and *Where to Store Data* below):
 
