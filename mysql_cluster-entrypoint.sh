@@ -10,9 +10,7 @@ fi
 # If we're setting up a mysqld/SQL API node 
 if [ "$NODE_TYPE" = 'sql' ]; then
 
-        echo
-        echo 'Setting up node as a new MySQL API node'
-        echo
+        echo 'Setting up node as a new MySQL API node...'
 
         CMD="mysqld"
 
@@ -47,9 +45,9 @@ if [ "$NODE_TYPE" = 'sql' ]; then
 		mkdir -p "$DATADIR"
 		chown -R mysql:mysql "$DATADIR"
 
-		echo 'Initializing database'
+		echo -n 'Initializing database... '
 		"$CMD" --initialize-insecure=on
-		echo 'Database initialized'
+		echo 'done'
 
 		"$CMD" --skip-networking &
 		pid="$!"
@@ -64,7 +62,7 @@ if [ "$NODE_TYPE" = 'sql' ]; then
 			sleep 1
 		done
 		if [ "$i" = 0 ]; then
-			echo >&2 'MySQL init process failed.'
+			echo >&2 'MySQL init process failed!'
 			exit 1
 		fi
 
@@ -118,13 +116,11 @@ if [ "$NODE_TYPE" = 'sql' ]; then
 			EOSQL
 		fi
 		if ! kill -s TERM "$pid" || ! wait "$pid"; then
-			echo >&2 'MySQL init process failed.'
+			echo >&2 'MySQL init process failed!'
 			exit 1
 		fi
 
-		echo
-		echo 'MySQL init process done. Ready for start up.'
-		echo
+		echo 'MySQL API node init process complete. Ready for node start up ...'
 	fi
 
 	chown -R mysql:mysql "$DATADIR"
@@ -136,21 +132,14 @@ if [ "$NODE_TYPE" = 'sql' ]; then
 
 # If we're setting up a management node 
 elif [ "$NODE_TYPE" = 'management' ]; then
-	echo
-	echo 'Setting up node as a new MySQL Cluster management node'
-	echo
 
         # if they're bootstrapping a new cluster, then we just need to start with a fresh Cluster
 	if [ ! -z "$BOOTSTRAP" ]; then
-		echo
-		echo 'Bootstrapping new Cluster with a fresh management node'
-		echo
+		echo 'Bootstrapping new Cluster with a fresh management node ...'
 
 	# otherwise we need to ensure that they have specified endpoint info for an existing ndb_mgmd node 
 	elif [ ! -z "$MANAGEMENT_SERVER" ]; then
-		echo
-		echo "Adding new management node and registering it with the existing server: $MANAGEMENT_SERVER"
-		echo
+		echo "Adding new management node and registering it with the existing server: $MANAGEMENT_SERVER ..."
 
         else
      		echo >&2 'error: Cluster management node is required'
@@ -166,9 +155,8 @@ elif [ "$NODE_TYPE" = 'management' ]; then
 
 # If we're setting up a data node 
 elif [ "$NODE_TYPE" = 'data' ]; then
-	echo
-	echo 'Setting up node as a new MySQL Cluster data node'
-	echo
+	echo 'Setting up node as a new MySQL Cluster data node ...'
+
 
 	# we need to ensure that they have specified endpoint info for an existing ndb_mgmd node 
 	if [ -z "$MANAGEMENT_SERVER" ]; then
@@ -186,9 +174,7 @@ elif [ "$NODE_TYPE" = 'data' ]; then
         CMD="ndbmtd --ndb_connectstring=$MANAGEMENT_SERVER:1186"
 
 else 
-	echo
 	echo 'Invalid node type set. Valid node types are sql, management, and data.'
-	echo
 fi
 
 
