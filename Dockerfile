@@ -12,7 +12,8 @@ RUN yum install -y $SERVER_PACKAGE_URL $CLIENT_PACKAGE_URL $LIB_PACKAGE_URL && \
 ADD my.cnf /etc/mysql/my.cnf
 ADD cluster-config.ini /etc/mysql/cluster-config.ini
 
-VOLUME /var/lib/mysql-cluster
+VOLUME /var/lib/mysql
+VOLUME /var/lib/ndb
 
 COPY mysql_cluster-entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

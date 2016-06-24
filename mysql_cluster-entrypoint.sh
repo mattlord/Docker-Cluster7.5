@@ -132,7 +132,7 @@ if [ "$NODE_TYPE" = 'sql' ]; then
         # and we need to add the management server info to this mysqld process we're starting
         #ndb_connectstring=<management_server>
      
-	exec "$CMD" --ndb_connectstring="$MANAGEMENT_SERVER":1186
+	CMD="mysqld --ndb_connectstring=$MANAGEMENT_SERVER:1186"
 
 # If we're setting up a management node 
 elif [ "$NODE_TYPE" = 'management' ]; then
@@ -145,8 +145,6 @@ elif [ "$NODE_TYPE" = 'management' ]; then
 		echo
 		echo 'Bootstrapping new Cluster with a fresh management node'
 		echo
-
-		MANAGEMENT_SERVER=127.0.0.1
 
 	# otherwise we need to ensure that they have specified endpoint info for an existing ndb_mgmd node 
 	elif [ ! -z "$MANAGEMENT_SERVER" ]; then
@@ -161,7 +159,9 @@ elif [ "$NODE_TYPE" = 'management' ]; then
 
         fi
 
-        CMD="ndb_mgmd --config-file=/etc/mysql/cluster-config.ini"
+	mkdir /var/lib/ndb/management
+
+        CMD="/usr/sbin/ndb_mgmd --config-file=/etc/mysql/cluster-config.ini --config-dir=/etc/mysql --nodaemon=TRUE"
    
 
 # If we're setting up a data node 
@@ -169,8 +169,6 @@ elif [ "$NODE_TYPE" = 'data' ]; then
 	echo
 	echo 'Setting up node as a new MySQL Cluster data node'
 	echo
-
-        CMD="ndbmtd --ndb_connectstring=$MANAGEMENT_SERVER:1186"
 
 	# we need to ensure that they have specified endpoint info for an existing ndb_mgmd node 
 	if [ -z "$MANAGEMENT_SERVER" ]; then
@@ -185,6 +183,7 @@ elif [ "$NODE_TYPE" = 'data' ]; then
 	#HostName=<IP/hostname>
 
         # then we'll start an ndbmtd process in this container 
+        CMD="ndbmtd --ndb_connectstring=$MANAGEMENT_SERVER:1186"
 
 else 
 	echo
@@ -193,4 +192,4 @@ else
 fi
 
 
-exec "$CMD"
+exec $CMD
