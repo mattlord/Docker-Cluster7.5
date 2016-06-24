@@ -30,7 +30,7 @@ Start and add a MySQL Cluster Data Node as follows:
 
 ## Add a MySQL Server Node to the Cluster 
 
-Start a MySQL instance as follows (but make sure you also read the *Where to Store Data* section below):
+Start and add a MySQL instance as follows (but make sure you also read the *Where to Store Data* section below):
 
     docker run -d --name mysqlnode1 -e NODE_TYPE=sql -e MANAGEMENT_SERVER=ndb_mgmd -e MYSQL_ROOT_PASSWORD=my-secret-pw --link ndb_mgmd mattalord/mysql-cluster:7.5
 
