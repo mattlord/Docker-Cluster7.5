@@ -128,9 +128,6 @@ if [ "$NODE_TYPE" = 'sql' ]; then
         mkdir /var/lib/mysql-files
 	chown -R mysql:mysql /var/lib/mysql-files
 
-        # and we need to add the management server info to this mysqld process we're starting
-        #ndb_connectstring=<management_server>
-     
 	CMD="mysqld --ndb_connectstring=$MANAGEMENT_SERVER:1186"
 
 # If we're setting up a management node 
