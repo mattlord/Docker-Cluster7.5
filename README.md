@@ -30,7 +30,7 @@ Start and add a MySQL Cluster Data Node as follows:
 
 ## Add a MySQL Server Node to the Cluster 
 
-Start a MySQL instance as follows (but make sure you also read the sections *Secure Container Startup* and *Where to Store Data* below):
+Start a MySQL instance as follows (but make sure you also read the *Where to Store Data* section below):
 
     docker run -d --name mysqlnode1 -e NODE_TYPE=sql -e MANAGEMENT_SERVER=ndb_mgmd -e MYSQL_ROOT_PASSWORD=my-secret-pw --link ndb_mgmd mattalord/mysql-cluster:7.5
 
@@ -82,7 +82,7 @@ This variable specifies the hostname or IP address of the Cluster Management ser
 
 ## `MYSQL_ROOT_PASSWORD`
 
-This variable specifies a password that will be set for the MySQL root superuser account. In the above example, it was set `to my-secret-pw`. **NOTE:** Setting the MySQL root user password on the command line is insecure. See the section *Secure Container Startup* below for an alternative.
+This variable specifies a password that will be set for the MySQL root superuser account. In the above example, it was set `to my-secret-pw`. **NOTE:** Setting the MySQL root user password on the command line is insecure.
 
 As an alternative to specifying the password explicitly, if the variable is set to a file path, the contents of the file will be used as the root password.
 
