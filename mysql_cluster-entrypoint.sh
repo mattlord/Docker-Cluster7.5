@@ -22,7 +22,7 @@ if [ "$NODE_TYPE" = 'sql' ]; then
         # we need to ensure that they have specified and endpoint for an existing management server
         if [ -z "$MANAGEMENT_SERVER" ]; then
                 echo >&2 'error: Cluster management server is required'
-                echo >&2 '  You need to specify MANAGEMENT_SERVER=<hostname> in order to setup this new data node'
+                echo >&2 '  You need to specify MANAGEMENT_SERVER=<hostname> in order to setup this new SQL node'
                 exit 1
         fi
 
@@ -169,6 +169,14 @@ elif [ "$NODE_TYPE" = 'data' ]; then
 		echo >&2 '  You need to specify MANAGEMENT_SERVER=<hostname> in order to setup this new data node'
       		exit 1
 	fi
+
+        # now we need to ensure that we can communicate with the management server
+        # would like to use `ndb_mgm -t 0 -c "$MANAGEMENT_SERVER" -e "49 status"` but you can't disable the retry...
+        if ! $(nc -z "$MANAGEMENT_SERVER" 1186 >& /dev/null); then
+                echo >&2 "error: Could not reach the specified Cluster management server at $MANAGEMENT_SERVER"
+                echo >&2 '  You need to specify a valid MANAGEMENT_SERVER=<hostname> option in order to setup this new data node'
+                exit 1
+        fi
 
         # we need to then modify the cluster config on the management server(s) and add the basic defintion:
 	#[NDBD]
