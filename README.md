@@ -20,7 +20,7 @@ This is an experimental MySQL Cluster Docker image, created and maintained by Ma
 
 ## Bootstrap a New Cluster by Creating a Management Node
 
-    docker run -d --name=ndb_mgmd --net=host -e NODE_TYPE=management -e BOOTSTRAP=1 mattalord/mysql-cluster:7.5 
+    docker run -d --name=ndb_mgmd -e NODE_TYPE=management -e BOOTSTRAP=1 mattalord/mysql-cluster:7.5 
 
 ## Add a MySQL Cluster Data Node to the Cluster 
 
