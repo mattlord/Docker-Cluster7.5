@@ -178,10 +178,7 @@ elif [ "$NODE_TYPE" = 'data' ]; then
                 exit 1
         fi
 
-        # we need to then modify the cluster config on the management server(s) and add the basic defintion:
-	#[NDBD]
-	#NodeId=<node ID>
-	#HostName=<IP/hostname>
+	mkdir /var/lib/ndb/data
 
         # then we'll start an ndbmtd process in this container 
         CMD="ndbmtd --ndb_connectstring=$MANAGEMENT_SERVER:1186 $ARGS"
