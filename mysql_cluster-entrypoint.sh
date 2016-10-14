@@ -181,7 +181,7 @@ elif [ "$NODE_TYPE" = 'data' ]; then
 	mkdir /var/lib/ndb/data
 
         # then we'll start an ndbmtd process in this container 
-        CMD="ndbmtd --ndb_connectstring=$MANAGEMENT_SERVER:1186 $ARGS"
+        CMD="ndbmtd --ndb_connectstring=$MANAGEMENT_SERVER:1186 --nodaemon=TRUE $ARGS"
 
 else 
 	echo 'Invalid node type set. Valid node types are sql, management, and data.'
